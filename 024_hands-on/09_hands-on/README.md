@@ -7,4 +7,5 @@
 	func FileServer(root FileSystem) Handler
 ```
 
-Constraint: you are not allowed to change the route being used for images in the template file
+Constraint: you are not allowed to change the route being used for 
+images in the template file
