@@ -15,8 +15,11 @@ func foo(w http.ResponseWriter, r *http.Request) {
 }
 
 func dog(w http.ResponseWriter, r *http.Request) {
-	tpl = template.Must(template.ParseGlob("templates/*"))
-	err := tpl.ExecuteTemplate(w, "dog.gohtml", nil)
+	tpl, err := template.ParseFiles("templates/dog.gohtml")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	err = tpl.ExecuteTemplate(w, "dog.gohtml", nil)
 	HandleError(w, err)
 }
 
