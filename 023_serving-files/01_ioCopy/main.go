@@ -3,6 +3,7 @@ package main
 import (
 	"io"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -17,5 +18,12 @@ func rainbow(w http.ResponseWriter, req *http.Request) {
 }
 
 func rainbowPic(w http.ResponseWriter, req *http.Request) {
-	http.ServeFile(w, req, "rainbow.png")
+	f, err := os.Open("rainbow.png")
+	if err != nil {
+		http.Error(w, "file not found", 404)
+		return
+	}
+	defer f.Close()
+
+	io.Copy(w, f)
 }
