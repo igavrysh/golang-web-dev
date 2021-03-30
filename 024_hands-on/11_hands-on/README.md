@@ -8,7 +8,8 @@ Use HandleFunc for each of the routes
 
 Combine apply & applyProcess into one func called "apply"
 
-Inside the func "apply", use this code to create the logic to respond differently to a POST method and a GET method
+Inside the func "apply", use this code to create the logic to respond 
+differently to a POST method and a GET method
 
 ``` go
 if req.Method == http.MethodPost {
