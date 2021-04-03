@@ -12,7 +12,6 @@ type user struct {
 	Password []byte
 	First string
 	Last string
-	Role string
 }
 
 var tpl *template.Template
@@ -22,7 +21,7 @@ var dbSessions = make(map[string]string) 	// session ID, user ID
 func init() {
 	tpl = template.Must(template.ParseGlob("templates/*"))
 	bs, _ := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.MinCost)
-	dbUsers["test@test.com" ] = user{"test@test.com", bs, "James", "Bond", "007"}
+	dbUsers["test@test.com" ] = user{"test@test.com", bs, "James", "Bond"}
 }
 
 func main() {
@@ -46,10 +45,7 @@ func bar(w http.ResponseWriter, req *http.Request) {
 		http.Redirect(w, req, "/", http.StatusSeeOther)
 		return
 	}
-	if u.Role != "007" {
-		http.Error(w, "You must be 007 to enter the bar", http.StatusForbidden)
-		return
-	}
+
 	tpl.ExecuteTemplate(w, "bar.gohtml", u)
 }
 
@@ -128,7 +124,6 @@ func signup(w http.ResponseWriter, req *http.Request) {
 		p := req.FormValue("password")
 		f := req.FormValue("firstname")
 		l := req.FormValue("lastname")
-		r := req.FormValue("role")
 
 		// username taken?
 		if _, ok := dbUsers[un]; ok {
@@ -152,7 +147,7 @@ func signup(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		u := user{un, bs, f, l, r}
+		u := user{un, bs, f, l}
 		dbUsers[un] = u
 
 		// redirect
