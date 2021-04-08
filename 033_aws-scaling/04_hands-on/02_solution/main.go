@@ -1,0 +1,158 @@
+package main
+
+import (
+	"database/sql"
+	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"io"
+	"net/http"
+)
+
+var db *sql.DB
+var err error
+
+func main() {
+	db, err = sql.Open("mysql", "awsuser:<password>@tcp(mydbinstance.caqv2psltyfw.us-east-1.rds.amazonaws.com:3306)/test02?charset=utf8")
+	check(err)
+	defer db.Close()
+
+	//err = db.Ping()
+	//check(err)
+
+	http.HandleFunc("/", index)
+	http.HandleFunc("/amigos", amigos)
+	http.HandleFunc("/instance", instance)
+	http.HandleFunc("/create", create)
+	http.HandleFunc("/insert", insert)
+	http.HandleFunc("/read", read)
+	http.HandleFunc("/update", update)
+	http.HandleFunc("/delete", del)
+	http.HandleFunc("/drop", drop)
+	http.Handle("/favicon.ico", http.NotFoundHandler())
+	err := http.ListenAndServe(":80", nil)
+	check(err)
+}
+
+func index(w http.ResponseWriter, req *http.Request) {
+	_, err = io.WriteString(w, "at index")
+	check(err)
+}
+
+func check(err error) {
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func amigos(w http.ResponseWriter, req *http.Request) {
+	rows, err := db.Query(`SELECT aName FROM test02.amigos`)
+	check(err)
+
+	// data to be used in query
+	s := getInstance()
+	s += "\nRETRIEVED RECORDS:"
+
+	var name string
+
+	// query
+	for rows.Next() {
+		err = rows.Scan(&name)
+		check(err)
+		s += name + "\n"
+	}
+	fmt.Fprintln(w, s)
+}
+
+func create(w http.ResponseWriter, req *http.Request) {
+	stmt, err := db.Prepare(`CREATE TABLE customer (name VARCHAR(20));`)
+	check(err)
+
+	r, err := stmt.Exec()
+	check(err)
+
+	n, err := r.RowsAffected()
+	check(err)
+
+	fmt.Fprintln(w, "CREATED TABLE customer", n)
+}
+
+func insert(w http.ResponseWriter, req *http.Request) {
+	stmt, err := db.Prepare(`INSERT INTO customer VALUES ("James");`)
+	check(err)
+
+	r, err := stmt.Exec()
+	check(err)
+
+	n, err := r.RowsAffected()
+	check(err)
+
+	fmt.Fprintln(w, "INSERTED RECORD", n)
+}
+
+func read(w http.ResponseWriter, req *http.Request) {
+	rows, err := db.Query(`SELECT * FROM customer`)
+	check(err)
+
+	var name string
+	for rows.Next() {
+		err = rows.Scan(&name)
+		check(err)
+		fmt.Println(name)
+
+		fmt.Fprintln(w, "RETREIVED RECORD:", name)
+	}
+}
+
+func update(w http.ResponseWriter, req *http.Request) {
+	stmt, err := db.Prepare(`UPDATE customer SET name="Jimmy" WHERE name="James";`)
+	check(err)
+
+	r, err := stmt.Exec()
+	check(err)
+
+	n, err := r.RowsAffected()
+	check(err)
+
+	fmt.Fprintln(w, "UPDATED RECORD", n)
+}
+
+func del(w http.ResponseWriter, req *http.Request) {
+	stmt, err := db.Prepare(`DELETE FROM customer WHERE name="Jimmy";`)
+	check(err)
+
+	r, err := stmt.Exec()
+	check(err)
+
+	n, err := r.RowsAffected()
+	check(err)
+
+	fmt.Fprintln(w, "DELETED RECORD", n)
+}
+
+func drop(w http.ResponseWriter, req *http.Request) {
+	stmt, err := db.Prepare(`DROP TABLE customer;`)
+	check(err)
+
+	_, err = stmt.Exec()
+	check(err)
+
+	fmt.Fprintln(w, "DROPPED TABLE customer")
+}
+
+func instance(w http.ResponseWriter, req *http.Request) {
+	s := getInstance()
+	io.WriteString(w, s)
+}
+
+func getInstance() string {
+	resp, err := http.Get("http://169.254.169.254/latest/meta-data/instance-id")
+	if err != nil {
+		fmt.Println(err)
+		return err.Error()
+	}
+	bs := make([]byte, resp.ContentLength)
+	resp.Body.Read(bs)
+	resp.Body.Close()
+	return string(bs)
+}
+

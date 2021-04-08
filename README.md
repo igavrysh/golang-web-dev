@@ -4,7 +4,6 @@ To init go module
 To install github dependency
 > go get github.com/go-sql-driver/mysql
 
-
 1. Add the service to systemd.
  - sudo systemctl enable ```<filename>```.service
 1. Activate the service.
@@ -13,3 +12,5 @@ To install github dependency
  - sudo systemctl status ```<filename```.service
 1. Stop systemd if so desired.
  - sudo systemctl stop ```<filename>```.service
+1. Reload systemctl
+  - sudo systemctl daemon-reload
