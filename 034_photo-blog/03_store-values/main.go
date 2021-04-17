@@ -54,7 +54,7 @@ func appendValue(w http.ResponseWriter, c *http.Cookie) *http.Cookie {
 	if !strings.Contains(s, p2) {
 		s += "|" + p2
 	}
-	if !strings.Contains(s, p2) {
+	if !strings.Contains(s, p3) {
 		s += "|" + p3
 	}
 	c.Value = s
