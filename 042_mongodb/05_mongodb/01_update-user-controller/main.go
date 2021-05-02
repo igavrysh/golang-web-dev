@@ -1,6 +1,7 @@
 package main
 
 import (
+	"gopkg.in/mgo.v2"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -11,7 +12,7 @@ import (
 func main() {
 	r := httprouter.New()
 	r.GET("/", index)
-	uc := controllers.NewUserController()
+	uc := controllers.NewUserController(getSession())
 
 	// added route plus parameter
 	r.GET("/user/:id", uc.GetUser)
@@ -35,4 +36,15 @@ func index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(s))
+}
+
+func getSession() *mgo.Session {
+	// Connect to our local mongo
+	s, err := mgo.Dial("mongodb://localhost")
+
+	// Check if connection error, is mongo running?
+	if err != nil {
+		panic(err)
+	}
+	return s
 }
