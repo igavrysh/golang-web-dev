@@ -9,7 +9,6 @@ curl http://localhost:8080/user/<enter-user-id-here>
 
 ```
 
-
 ```
 curl -X DELETE http://localhost:8080/user/<enter-user-id-here>
 ```
