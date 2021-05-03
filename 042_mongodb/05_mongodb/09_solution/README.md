@@ -1,7 +1,7 @@
 Enter this at the terminal to test application
 
 ```
-curl -X POST -H "Content-Type: application/json" -d '{"name":"Miss Moneypenny1","gender":"female","age":27}' http://localhost:8080/user
+curl -X POST -H "Content-Type: application/json" -d '{"name":"Miss Moneypenny","gender":"female","age":27}' http://localhost:8080/user
 ```
 
 ```
